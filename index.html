@@ -6,7 +6,7 @@
     <title>Générateur de JMAPP</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse for TSV/CSV auto-parsing -->
+    <!-- PapaParse pour auto-parsing TSV/CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,24 +23,6 @@
             }
         }
     </script>
-    <style>
-        .token-changed {
-            background-color: #e0e7ff;
-            color: #3730a3;
-            font-weight: 600;
-            padding: 0.1rem 0.35rem;
-            border-radius: 0.25rem;
-            border-bottom: 2px solid #6366f1;
-        }
-        .token-synth {
-            background-color: #fef3c7;
-            color: #92400e;
-            font-weight: 600;
-            padding: 0.1rem 0.35rem;
-            border-radius: 0.25rem;
-            border-bottom: 2px solid #f59e0b;
-        }
-    </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 font-sans antialiased bg-slate-50">
 
@@ -53,7 +35,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="font-bold text-xl leading-tight tracking-tight">Générateur de textes JMAPP</h1>
+                    <h1 class="font-bold text-xl leading-tight tracking-tight">Traducteur JMAPP</h1>
                     <p class="text-xs text-indigo-200">Jean-Michel Apeuprè</p>
                 </div>
             </div>
@@ -64,7 +46,7 @@
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                     </svg>
-                    <span>Charger un fichier</span>
+                    <span>Charger un dictionnaire</span>
                     <input type="file" id="dict-file-input" accept=".tsv,.csv,.txt" class="hidden">
                 </label>
 
@@ -75,6 +57,30 @@
             </div>
         </div>
     </header>
+
+    <div id="local-file-notice" class="hidden bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-3 text-xs sm:text-sm">
+        <div class="max-w-4xl mx-auto flex items-start space-x-3">
+            <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="flex-1">
+                <p class="font-semibold mb-0.5">Chargement automatique restreint par le navigateur (ouverture directe file://)</p>
+                <p class="text-amber-800">
+                    Pour des raisons de sécurité, votre navigateur interdit la lecture automatique de fichiers sur le disque dur sans serveur HTTP.
+                    <br><strong>Solution 1 :</strong> Glissez-déposez simplement votre fichier <code class="bg-amber-100 px-1 py-0.5 rounded font-mono">.tsv</code> n'importe où sur cette page.
+                    <br><strong>Solution 2 :</strong> Lancez la page via un serveur local (ex: extension VS Code <i>Live Server</i> ou <code class="bg-amber-100 px-1 py-0.5 rounded font-mono">python -m http.server</code>).
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="drop-overlay" class="fixed inset-0 bg-indigo-900/80 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center text-white border-4 border-dashed border-indigo-300 m-4 rounded-3xl pointer-events-none transition-all">
+        <svg class="w-16 h-16 mb-4 animate-bounce text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <p class="text-xl font-bold">Déposez votre dictionnaire Lexique (.tsv / .csv) ici</p>
+        <p class="text-sm text-indigo-200 mt-1">Le dictionnaire sera chargé instantanément</p>
+    </div>
 
     <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8 flex flex-col space-y-6">
         
@@ -89,8 +95,8 @@
                 </button>
             </div>
             
-            <textarea id="input-text" rows="5" class="w-full rounded-xl border border-slate-200 p-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base leading-relaxed" placeholder="Entrez le texte à transformer ici..."></textarea>
-            
+            <textarea id="input-text" rows="5" class="w-full rounded-xl border border-slate-200 p-4 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-base leading-relaxed" placeholder="Entrez le texte à traduire en style JMAPP..."></textarea>
+
             <button id="translate-btn" class="w-full py-3.5 px-6 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold rounded-xl shadow-sm transition flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <svg id="btn-spinner" class="w-5 h-5 hidden animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -107,7 +113,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex-1 flex flex-col space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h2 class="font-semibold text-slate-900 text-sm">
-                    Texte transformé
+                    Traduction
                 </h2>
                 <button id="copy-btn" class="inline-flex items-center px-3 py-1.5 border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-lg transition">
                     <svg class="w-3.5 h-3.5 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,8 +124,8 @@
             </div>
 
             <!-- Output Box -->
-            <div id="output-view" class="p-4 bg-slate-50/70 rounded-xl min-h-[160px] border border-slate-200/80 text-slate-800 leading-relaxed text-base whitespace-pre-wrap">
-                <span class="text-slate-400 italic">Le résultat transformé apparaîtra ici...</span>
+            <div id="output-view" class="p-4 bg-slate-50/70 rounded-xl min-h-[140px] border border-slate-200/80 text-slate-800 leading-relaxed text-base whitespace-pre-wrap select-text">
+                <span class="text-slate-400 italic">La traduction apparaîtra ici...</span>
             </div>
         </div>
 
@@ -131,7 +137,6 @@
     </div>
 
     <script>
-        // Closed-Class Dictionary (Locked POS mapping)
         const CLOSED_CLASS_POS_MAP = {
             "le": "ART", "la": "ART", "les": "ART", "un": "ART", "une": "ART", "des": "ART",
             "du": "ART", "au": "ART", "aux": "ART", "ce": "ART", "cet": "ART", "cette": "ART", "ces": "ART",
@@ -142,24 +147,42 @@
             "par": "PRE", "en": "PRE", "vers": "PRE", "chez": "PRE", "de": "PRE", "d'": "PRE", "d": "PRE",
             "à": "PRE", "a": "PRE", "depuis": "PRE", "pendant": "PRE", "entre": "PRE", "contre": "PRE",
             "je": "PRO", "j'": "PRO", "tu": "PRO", "il": "PRO", "elle": "PRO", "on": "PRO",
-            "nous": "PRO", "vous": "PRO", "ils": "PRO", "elles": "PRO", "ceci": "PRO", "cela": "PRO", "ça": "PRO"
+            "nous": "PRO", "vous": "PRO", "ils": "PRO", "elles": "PRO", "ceci": "PRO", "cela": "PRO", "ça": "PRO",
+            "où": "PRO", "ou": "KON", "dont": "PRO", "quand": "ADV", "que": "PRO", "qui": "PRO", "quoi": "PRO",
+            "si": "KON", "ni": "KON", "car": "KON", "et": "KON", "mais": "KON", "donc": "KON", "or": "KON"
         };
 
         const GRAMMATICAL_STOPWORDS = new Set([
-            "a", "à", "â", "A", "À", "Â",
+            "a", "à", "â", "A", "À", "Â", "où", "ou", "Où", "Ou",
             "le", "la", "les", "un", "une", "des", "du", "de", "d'", "en", "au", "aux", 
             "dans", "par", "pour", "vers", "avec", "sans", "sous", "sur", "chez", "avant", "après", "pendant", "depuis",
             "ce", "cet", "cette", "ces", "mon", "ton", "son", "ma", "ta", "sa", "mes", "tes", "ses",
             "notre", "votre", "leur", "nos", "vos", "leurs", "et", "ou", "donc", "or", "ni", "car", "mais",
-            "ne", "pas", "plus", "jamais", "rien", "personne", "que", "qu'", "qui", "quand", "si",
+            "ne", "pas", "plus", "jamais", "rien", "personne", "que", "qu'", "qui", "quand", "si", "dont",
             "je", "j'", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "me", "m'", "te", "t'", "se", "s'", "lui", "y",
             "c'", "n'", "l'", "ça", "cela", "ceci", "jusqu'", "lorsqu'", "puisqu'",
             "d", "l", "j", "m", "t", "s", "n", "c", "qu", "bien", "tous", "tout", "toute", "toutes"
         ]);
 
         const AUXILIARIES = new Set([
-            "avoir", "ai", "as", "a", "avons", "avez", "ont", "avais", "avait", "avions", "aviez", "avaient",
-            "être", "suis", "es", "est", "sommes", "êtes", "sont", "étais", "était", "étions", "étiez", "étaient"
+            // être
+            "être", "étant", "été",
+            "suis", "es", "est", "sommes", "êtes", "sont",
+            "étais", "était", "étions", "étiez", "étaient",
+            "fus", "fut", "fûmes", "fûtes", "furent",
+            "serai", "seras", "sera", "serons", "serez", "seront",
+            "serais", "serait", "serions", "seriez", "seraient",
+            "sois", "soit", "soyons", "soyez", "soient",
+            "fusse", "fusses", "fût", "fussions", "fussiez", "fussent",
+            // avoir
+            "avoir", "ayant", "eu", "eue", "eues", "eus",
+            "ai", "as", "a", "avons", "avez", "ont",
+            "avais", "avait", "avions", "aviez", "avaient",
+            "eut", "eûmes", "eûtes", "eurent",
+            "aurai", "auras", "aura", "aurons", "aurez", "auront",
+            "aurais", "aurait", "aurions", "auriez", "auraient",
+            "aie", "aies", "ait", "ayons", "ayez", "aient",
+            "eusse", "eusses", "eût", "eussions", "eussiez", "eussent"
         ]);
 
         const SUBJECT_PRONOUNS = new Set([
@@ -175,8 +198,20 @@
             "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses", "notre", "votre", "leur", "nos", "vos", "leurs"
         ]);
 
+        const SINGULAR_DETERMINERS = new Set([
+            "le", "la", "l'", "l", "un", "une", "du", "au", "ce", "cet", "cette",
+            "mon", "ma", "ton", "ta", "son", "sa", "notre", "votre", "leur",
+            "chaque", "tout", "toute"
+        ]);
+
+        const PLURAL_DETERMINERS = new Set([
+            "les", "des", "aux", "ces", "mes", "tes", "ses", "nos", "vos", "leurs",
+            "plusieurs", "quelques", "tous", "toutes"
+        ]);
+
         const PREPOSITIONS = new Set([
-            "sur", "dans", "avec", "sans", "sous", "pour", "par", "en", "vers", "chez", "de", "d'", "à", "a", "depuis", "pendant"
+            "à", "a", "de", "d'", "d", "dans", "en", "sur", "sous", "avec", "sans", "pour", "par",
+            "vers", "chez", "depuis", "pendant", "entre", "contre", "avant", "après", "devant", "derrière"
         ]);
 
         // Embedded Demo Dict as Safety Fallback
@@ -187,6 +222,20 @@
             { ortho: "un", phon: "E~", pos: "ART", genre: "m", nombre: "s", freq: 400, lemme: "un" },
             { ortho: "une", phon: "yn", pos: "ART", genre: "f", nombre: "s", freq: 390, lemme: "un" },
             { ortho: "mon", phon: "mo~", pos: "ART", genre: "m", nombre: "s", freq: 300, lemme: "mon" },
+            { ortho: "parle", phon: "paRl", pos: "VER", infover: "1s;ind;pres", freq: 50.0, lemme: "parler" },
+            { ortho: "marche", phon: "maRS", pos: "VER", infover: "1s;ind;pres", freq: 40.0, lemme: "marcher" },
+            { ortho: "chante", phon: "Sa~t", pos: "VER", infover: "1s;ind;pres", freq: 35.0, lemme: "chanter" },
+            { ortho: "parles", phon: "paRl", pos: "VER", infover: "2s;ind;pres", freq: 30.0, lemme: "parler" },
+            { ortho: "marches", phon: "maRS", pos: "VER", infover: "2s;ind;pres", freq: 25.0, lemme: "marcher" },
+            { ortho: "chantes", phon: "Sa~t", pos: "VER", infover: "20.0", lemme: "chanter" },
+            { ortho: "parlons", phon: "paRlo~", pos: "VER", infover: "1p;ind;pres", freq: 30.0, lemme: "parler" },
+            { ortho: "marchons", phon: "maRSo~", pos: "VER", infover: "1p;ind;pres", freq: 25.0, lemme: "marcher" },
+            { ortho: "chantons", phon: "Sa~to~", pos: "VER", infover: "1p;ind;pres", freq: 20.0, lemme: "chanter" },
+            { ortho: "parlent", phon: "paRl", pos: "VER", infover: "3p;ind;pres", freq: 45.0, lemme: "parler" },
+            { ortho: "marchent", phon: "maRS", pos: "VER", infover: "3p;ind;pres", freq: 38.0, lemme: "marcher" },
+            { ortho: "chantent", phon: "Sa~t", pos: "VER", infover: "3p;ind;pres", freq: 32.0, lemme: "chanter" },
+            { ortho: "mangeait", phon: "ma~ZE", pos: "VER", infover: "3s;ind;imp", freq: 25.0, lemme: "manger" },
+            { ortho: "bougeait", phon: "buZE", pos: "VER", infover: "3s;ind;imp", freq: 20.0, lemme: "bouger" },
             { ortho: "sale", phon: "sal", pos: "ADJ", genre: "f", nombre: "s", freq: 15.0, lemme: "sale" },
             { ortho: "mâle", phon: "mal", pos: "ADJ", genre: "m", nombre: "s", freq: 12.0, lemme: "mâle" },
             { ortho: "vrai", phon: "vRE", pos: "ADJ", genre: "m", nombre: "s", freq: 25.0, lemme: "vrai" },
@@ -197,8 +246,10 @@
             { ortho: "baron", phon: "baRo~", pos: "NOM", genre: "m", nombre: "s", freq: 14.0, lemme: "baron" },
             { ortho: "ruines", phon: "R8in", pos: "NOM", genre: "f", nombre: "p", freq: 18.0, lemme: "ruine" },
             { ortho: "babines", phon: "babin", pos: "NOM", genre: "f", nombre: "p", freq: 8.0, lemme: "babine" },
-            { ortho: "champ", phon: "Sa~", pos: "NOM", genre: "m", nombre: "s", freq: 25.0, lemme: "champ" },
-            { ortho: "bataille", phon: "bataj", pos: "NOM", genre: "f", nombre: "s", freq: 30.0, lemme: "bataille" }
+            { ortho: "pays", phon: "pei", pos: "NOM", genre: "m", nombre: "s", freq: 65.0, lemme: "pays" },
+            { ortho: "pari", phon: "paRi", pos: "NOM", genre: "m", nombre: "s", freq: 22.0, lemme: "pari" },
+            { ortho: "papy", phon: "papi", pos: "NOM", genre: "m", nombre: "s", freq: 12.0, lemme: "papy" },
+            { ortho: "tapis", phon: "tapi", pos: "NOM", genre: "m", nombre: "s", freq: 18.0, lemme: "tapis" }
         ];
 
         const state = {
@@ -211,6 +262,16 @@
         function normalizeTypography(text) {
             if (!text) return '';
             return String(text).replace(/[’´`ʻʼ]/g, "'");
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         function levenshteinDistance(a, b) {
@@ -261,6 +322,46 @@
                  .replace(/g/g, 'g').replace(/s(?=[aeiouyàâéèêëîïôûù][aeiouyàâéèêëîïôûù])/g, 'z')
                  .replace(/x/g, 'ks').replace(/r/g, 'R').replace(/[e]$/g, '').replace(/[stdpxz]$/g, '');
             return w || 'a';
+        }
+
+        function synthesizeApeupreWord(word) {
+            if (!word || word.length < 3) return word;
+            
+            const vowelSwaps = { 'a':'o', 'o':'a', 'e':'i', 'i':'e', 'u':'ou', 'ou':'u', 'é':'è', 'è':'é', 'an':'on', 'on':'an', 'in':'un' };
+            const consonantSwaps = { 'p':'b', 'b':'p', 't':'d', 'd':'t', 'f':'v', 'v':'f', 'k':'g', 'g':'k', 's':'z', 'z':'s' };
+            
+            let res = word.toLowerCase();
+            let modified = false;
+
+            for (let [from, to] of Object.entries(vowelSwaps)) {
+                if (from.length > 1 && res.includes(from)) {
+                    res = res.replace(from, to);
+                    modified = true;
+                    break;
+                }
+            }
+
+            if (!modified) {
+                let chars = res.split('');
+                for (let i = Math.floor(chars.length / 3); i < chars.length; i++) {
+                    let c = chars[i];
+                    if (vowelSwaps[c]) {
+                        chars[i] = vowelSwaps[c];
+                        modified = true;
+                        break;
+                    } else if (consonantSwaps[c]) {
+                        chars[i] = consonantSwaps[c];
+                        modified = true;
+                        break;
+                    }
+                }
+                res = chars.join('');
+            }
+
+            if (word[0] === word[0].toUpperCase()) {
+                res = res.charAt(0).toUpperCase() + res.slice(1);
+            }
+            return res;
         }
 
         function getPhoneticCV(sampa) {
@@ -386,7 +487,7 @@
             if (prev1) {
                 if (SUBJECT_PRONOUNS.has(prev1)) return 'VER';
                 if (OBJECT_PRONOUNS.has(prev1)) {
-                    if (prev2 && (SUBJECT_PRONOUNS.has(prev2) || prev2 === 'ne' || prev2 === "n'")) return 'VER';
+                    if (prev2 && (SUBJECT_PRONOUNS.has(prev2) || prev1 === 'ne' || prev1 === "n'")) return 'VER';
                     if (SUBJECT_PRONOUNS.has(prev1)) return 'VER';
                 }
                 if (AUXILIARIES.has(prev1)) return 'VER';
@@ -422,12 +523,13 @@
             return 'NOM';
         }
 
+        // Detects subject pronoun governing a verb
         function getGoverningSubjectInfo(index, wordTokens) {
-            for (let i = index - 1; i >= Math.max(0, index - 3); i--) {
+            for (let i = index - 1; i >= Math.max(0, index - 4); i--) {
                 const tok = wordTokens[i].toLowerCase();
                 if (['je', "j'"].includes(tok)) return { person: '1', num: 's' };
                 if (tok === 'tu') return { person: '2', num: 's' };
-                if (['il', 'elle', 'on'].includes(tok)) return { person: '3', num: 's' };
+                if (['il', 'elle', 'on', 'ce', "c'"].includes(tok)) return { person: '3', num: 's' };
                 if (tok === 'nous') return { person: '1', num: 'p' };
                 if (tok === 'vous') return { person: '2', num: 'p' };
                 if (['ils', 'elles'].includes(tok)) return { person: '3', num: 'p' };
@@ -436,25 +538,58 @@
             return null;
         }
 
-        function executePriorityPipeline(targetEntry, cleanWord, isEndToken, sylCount, requireParticiple = false, expectedSubject = null) {
+        function getPrecedingDeterminerNumber(index, wordTokens) {
+            for (let i = index - 1; i >= Math.max(0, index - 3); i--) {
+                const tok = wordTokens[i].toLowerCase();
+                if (SINGULAR_DETERMINERS.has(tok)) return 's';
+                if (PLURAL_DETERMINERS.has(tok)) return 'p';
+
+                const posSet = getPossiblePOS(tok);
+                if (posSet.has('VER')) break;
+                if (posSet.has('NOM') && !posSet.has('ADJ') && !SINGULAR_DETERMINERS.has(tok) && !PLURAL_DETERMINERS.has(tok)) {
+                    break;
+                }
+            }
+            return null;
+        }
+
+        // Helper to extract Person & Number (e.g. "1s", "3p") from infover string or subject info
+        function extractVerbPersonNumber(infoverStr) {
+            if (!infoverStr) return null;
+            const str = String(infoverStr).toLowerCase().trim();
+            const m = str.match(/\b([123])[;:.-]?([sp])\b/) || str.match(/^([123])([sp])/);
+            if (m) return m[1] + m[2];
+            return null;
+        }
+
+        function executePriorityPipeline(targetEntry, cleanWord, isEndToken, sylCount, requireParticiple = false, expectedSubject = null, forcedNum = null) {
             const targetPhon = targetEntry.phon || '';
             const targetLen = targetPhon.length;
             const targetCV = targetEntry.cv || getPhoneticCV(targetPhon);
             const targetRhyme = targetEntry.rime || getRimeKey(targetPhon);
             const pos = targetEntry.normPos;
             const targetLemme = (targetEntry.lemme || targetEntry.ortho).toLowerCase();
-            const targetNum = (expectedSubject && expectedSubject.num) ? expectedSubject.num : getEffectiveNombre(targetEntry);
+            const targetNum = forcedNum || ((expectedSubject && expectedSubject.num) ? expectedSubject.num : getEffectiveNombre(targetEntry));
+            const targetIsAcronym = Boolean(targetEntry.isAcronym);
+
+            // Extract verb inflection metadata
+            const targetInfover = (pos === 'VER' && targetEntry.infover) ? String(targetEntry.infover).toLowerCase().trim() : '';
+            let targetVerbPN = extractVerbPersonNumber(targetInfover);
+            if (!targetVerbPN && expectedSubject && pos === 'VER') {
+                targetVerbPN = expectedSubject.person + expectedSubject.num;
+            }
 
             const pool = state.posMap.get(pos) || [];
             if (pool.length === 0) return null;
 
+            // Multi-stage pipeline enforcing verb agreement, syllable count & initial sound
             const stages = [
-                { maxDist: 1, minFreq: 0.5, strictRhyme: isEndToken, noMultiPOS: true, strictCV: true },
-                { maxDist: 2, minFreq: 0.5, strictRhyme: isEndToken, noMultiPOS: true, strictCV: true },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: isEndToken, noMultiPOS: true, strictCV: true },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: false, noMultiPOS: true, strictCV: true },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: false, noMultiPOS: false, strictCV: true },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: false, noMultiPOS: false, strictCV: false }
+                { maxDist: 1, minFreq: 0.5, strictRhyme: isEndToken, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: true },
+                { maxDist: 2, minFreq: 0.5, strictRhyme: isEndToken, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: true },
+                { maxDist: 2, minFreq: 0.0, strictRhyme: isEndToken, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: false },
+                { maxDist: 2, minFreq: 0.0, strictRhyme: false, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: false },
+                { maxDist: 2, minFreq: 0.0, strictRhyme: false, strictCV: true, strictInfover: false, strictSyllables: true, requireSameStart: false },
+                { maxDist: 2, minFreq: 0.0, strictRhyme: false, strictCV: false, strictInfover: false, strictSyllables: false, requireSameStart: false }
             ];
 
             for (const stage of stages) {
@@ -464,17 +599,51 @@
                     const entry = pool[i];
                     if (entry.ortho.toLowerCase() === cleanWord) continue;
 
+                    // Skip letter-spelled acronyms (e.g. po -> peo) when target is a regular word
+                    if (entry.isAcronym && !targetIsAcronym) continue;
+
                     const candLemme = (entry.lemme || entry.ortho).toLowerCase();
                     if (candLemme === targetLemme) continue;
 
                     const candPhon = entry.phon || '';
                     if (candPhon === targetPhon) continue;
 
-                    const candNum = getEffectiveNombre(entry);
-                    if (targetNum && candNum && targetNum !== candNum) continue;
+                    // Enforce syllable count
+                    const candSylCount = countSyllables(candPhon);
+                    if (stage.strictSyllables && candSylCount !== sylCount) continue;
+                    if (!stage.strictSyllables && Math.abs(candSylCount - sylCount) > 1) continue;
 
-                    if (['NOM', 'ADJ', 'PRO'].includes(pos)) {
-                        if (targetEntry.genre && entry.genre && targetEntry.genre !== entry.genre) continue;
+                    // Enforce same starting phonetic sound when required
+                    if (stage.requireSameStart && targetPhon.length > 0 && candPhon.length > 0) {
+                        if (targetPhon[0] !== candPhon[0]) continue;
+                    }
+
+                    // VERB SPECIFIC INFLECTION & CONJUGATION MATCHING
+                    if (pos === 'VER') {
+                        const candInfover = entry.infover ? String(entry.infover).toLowerCase().trim() : '';
+
+                        // Stage 1: Strict infover match (Same mode, tense, person, number)
+                        if (stage.strictInfover && targetInfover) {
+                            if (candInfover !== targetInfover) continue;
+                        } else {
+                            // Soft check: Must match Person & Number if present/governed by subject
+                            if (targetVerbPN) {
+                                const candPN = extractVerbPersonNumber(candInfover);
+                                if (candPN && candPN !== targetVerbPN) continue;
+                            }
+
+                            // Preserve Mode (Infinitive vs Participle vs Conjugated)
+                            if (targetInfover.includes('inf') && candInfover && !candInfover.includes('inf')) continue;
+                            if ((targetInfover.includes('ppre') || targetInfover.includes('ppas')) && candInfover && !candInfover.includes('pp')) continue;
+                        }
+                    } else {
+                        // NON-VERBS: Number & Gender agreement
+                        const candNum = getEffectiveNombre(entry);
+                        if (targetNum && candNum && targetNum !== candNum) continue;
+
+                        if (['NOM', 'ADJ', 'PRO'].includes(pos)) {
+                            if (targetEntry.genre && entry.genre && targetEntry.genre !== entry.genre) continue;
+                        }
                     }
 
                     if (entry.freq < stage.minFreq) continue;
@@ -493,12 +662,23 @@
 
                     const dist = levenshteinDistance(targetPhon, candPhon);
                     if (dist > 0 && dist <= stage.maxDist) {
-                        candidates.push({ ...entry, dist });
+                        candidates.push({ ...entry, dist, candSylCount });
                     }
                 }
 
                 if (candidates.length > 0) {
                     candidates.sort((a, b) => {
+                        const aStartMatch = targetPhon.length > 0 && a.phon.length > 0 && a.phon[0] === targetPhon[0];
+                        const bStartMatch = targetPhon.length > 0 && b.phon.length > 0 && b.phon[0] === targetPhon[0];
+                        
+                        if (aStartMatch && !bStartMatch) return -1;
+                        if (bStartMatch && !aStartMatch) return 1;
+
+                        const aExactSyl = a.candSylCount === sylCount;
+                        const bExactSyl = b.candSylCount === sylCount;
+                        if (aExactSyl && !bExactSyl) return -1;
+                        if (bExactSyl && !aExactSyl) return 1;
+
                         const aRhymeMatch = (a.rime || getRimeKey(a.phon)) === targetRhyme;
                         const bRhymeMatch = (b.rime || getRimeKey(b.phon)) === targetRhyme;
                         const maxFreq = Math.max(a.freq, b.freq, 0.1);
@@ -522,11 +702,11 @@
         function transformSentence(text) {
             const textNormalized = normalizeTypography(text);
             const lines = textNormalized.split(/(\r?\n)/);
-            let fullRenderTokens = [];
+            let resultParts = [];
 
             lines.forEach(line => {
                 if (/^\r?\n$/.test(line)) {
-                    fullRenderTokens.push({ isNewline: true, text: line });
+                    resultParts.push(line);
                     return;
                 }
 
@@ -548,7 +728,7 @@
 
                 tokens.forEach((token, idx) => {
                     if (!/[a-zA-ZàâäéèêëîïôöùûüÿæœÇçÀÂÄÉÈÊËÎÏÔÖÙÛÜŸÆŒ]/.test(token)) {
-                        fullRenderTokens.push({ isWord: false, text: token });
+                        resultParts.push(token);
                         return;
                     }
 
@@ -564,6 +744,7 @@
 
                     const ctxPOS = deduceContextualPOS(token, wIdx, wordTokens);
                     const expectedSubject = (ctxPOS === 'VER') ? getGoverningSubjectInfo(wIdx, wordTokens) : null;
+                    const forcedNum = (ctxPOS === 'NOM' || ctxPOS === 'ADJ') ? getPrecedingDeterminerNumber(wIdx, wordTokens) : null;
 
                     if (existingEntries.length > 0) {
                         const matchingPOS = existingEntries.filter(e => e.normPos === ctxPOS);
@@ -587,31 +768,30 @@
                     const sampaPhon = targetEntry.phon || estimateFrenchPhonetics(clean);
                     const sylCount = countSyllables(sampaPhon);
 
-                    if ((GRAMMATICAL_STOPWORDS.has(clean) && sylCount < 2) || AUXILIARIES.has(clean) || CLOSED_CLASS_POS_MAP[clean]) {
-                        fullRenderTokens.push({ isWord: true, text: token, changed: false });
+                    // Skip short grammatical stopwords and auxiliaries (by explicit form or by lemma)
+                    const isAuxiliary = AUXILIARIES.has(clean) || (targetEntry && (targetEntry.lemme === 'être' || targetEntry.lemme === 'avoir'));
+                    if ((GRAMMATICAL_STOPWORDS.has(clean) && sylCount < 2) || isAuxiliary || CLOSED_CLASS_POS_MAP[clean]) {
+                        resultParts.push(token);
                         return;
                     }
 
-                    const chosen = executePriorityPipeline(targetEntry, clean, isEndToken, sylCount, isPrecededByAux, expectedSubject);
+                    const chosen = executePriorityPipeline(targetEntry, clean, isEndToken, sylCount, isPrecededByAux, expectedSubject, forcedNum);
 
                     if (chosen) {
                         let finalWord = chosen.ortho;
                         if (token[0] === token[0].toUpperCase()) {
                             finalWord = finalWord.charAt(0).toUpperCase() + finalWord.slice(1);
                         }
-                        const isChanged = finalWord.toLowerCase() !== clean;
-                        fullRenderTokens.push({
-                            isWord: true,
-                            text: finalWord,
-                            changed: isChanged
-                        });
+                        resultParts.push(finalWord);
                     } else {
-                        fullRenderTokens.push({ isWord: true, text: token, changed: false });
+                        // Synthetic fallback for words not in dictionary
+                        const synthWord = synthesizeApeupreWord(token);
+                        resultParts.push(synthWord);
                     }
                 });
             });
 
-            return fullRenderTokens;
+            return resultParts.join('');
         }
 
         function buildOrthoMap(entries) {
@@ -649,7 +829,6 @@
             let idxNombre = headerClean.findIndex(h => h === 'nombre' || h.includes('nombre'));
             let idxInfover = headerClean.findIndex(h => h === 'infover' || h.includes('infover'));
             
-            // Critical: Priority match for lemma frequency (freqlem) as in the original baseline version
             let idxFreq = headerClean.findIndex(h => h.includes('freqlem') || h.includes('freqlilm'));
             if (idxFreq === -1) {
                 idxFreq = headerClean.findIndex(h => h.includes('freqfilms') || h.includes('freqlivres') || h.includes('freq'));
@@ -658,7 +837,6 @@
             const hasHeader = headerClean.some(h => h.includes('ortho') || h.includes('phon') || h.includes('cgram') || h === 'pos' || h === 'cat');
 
             if (!hasHeader) {
-                // Positional indexing fallback for headerless files
                 idxOrtho = 0;
                 idxPhon = 1;
                 const colCount = rows[0] ? rows[0].length : 0;
@@ -699,10 +877,14 @@
                 const infover = idxInfover !== -1 && row[idxInfover] !== undefined ? String(row[idxInfover]).trim() : '';
                 const freqVal = idxFreq !== -1 && row[idxFreq] !== undefined ? parseFloat(row[idxFreq]) : 0;
 
+                // Detect spelled-out acronyms (e.g. po -> peo, cd -> sede, tv -> teve)
+                const isAcronym = (ortho.length <= 3 && phon.length > ortho.length && /^[a-z]+$/i.test(ortho));
+
                 parsedEntries.push({
                     ortho, phon, lemme, pos,
                     freq: isNaN(freqVal) ? 0 : freqVal,
-                    genre, nombre, infover
+                    genre, nombre, infover,
+                    isAcronym
                 });
             }
 
@@ -711,34 +893,50 @@
                 buildOrthoMap(state.entries);
                 state.isLoaded = true;
                 updateStatus(true, `Dictionnaire prêt (${parsedEntries.length.toLocaleString('fr-FR')} mots)`);
+                hideLocalFileNotice();
             }
+        }
+
+        function showLocalFileNotice() {
+            const notice = document.getElementById('local-file-notice');
+            if (notice) notice.classList.remove('hidden');
+        }
+
+        function hideLocalFileNotice() {
+            const notice = document.getElementById('local-file-notice');
+            if (notice) notice.classList.add('hidden');
         }
 
         function autoLoadDictionary() {
             const possibleFiles = [
                 'Lexique4_light.tsv', 'lexique4_light.tsv', 'Lexique4_Light.tsv',
-                'Lexique4_light.csv', 'lexique4_light.csv', 'Lexique4_Light.csv',
-                'Lexique383.tsv', 'Lexique383.csv',
-                'Lexique4.tsv', 'Lexique.tsv', 'lexique.tsv', 'Lexique.csv', 'lexique.csv',
+                'Lexique388.tsv', 'lexique388.tsv', 'Lexique388.csv', 'lexique388.csv',
+                'Lexique383.tsv', 'lexique383.tsv', 'Lexique383.csv', 'lexique383.csv',
+                'Lexique380.tsv', 'lexique380.tsv',
+                'Lexique4.tsv', 'lexique4.tsv', 'Lexique3.tsv', 'lexique3.tsv',
+                'Lexique.tsv', 'lexique.tsv', 'Lexique.csv', 'lexique.csv',
                 'lexique_reduit.tsv', 'lexique_reduit.csv', 'Lexique_reduit.tsv',
-                'lexique_light.tsv', 'lexique_light.csv'
+                'lexique_light.tsv', 'lexique_light.csv', 'dict.tsv', 'dictionary.tsv'
             ];
             
+            const isFileProtocol = window.location.protocol === 'file:';
+
             function tryFetch(index) {
                 if (index >= possibleFiles.length) {
-                    // Fallback to embedded demo dictionary if file not found or if blocked by file:// CORS
                     state.entries = INITIAL_DEMO_ENTRIES;
                     buildOrthoMap(state.entries);
-                    const isFileProtocol = window.location.protocol === 'file:';
-                    const msg = isFileProtocol 
-                        ? "Mode Démo (Utilisez le bouton 'Charger un fichier' pour ouvrir Lexique4_light.tsv)" 
-                        : "Mode Démo (Lexique local non trouvé)";
-                    updateStatus(true, msg);
+                    
+                    if (isFileProtocol) {
+                        updateStatus(false, "Bloqué par le navigateur en mode file://");
+                        showLocalFileNotice();
+                    } else {
+                        updateStatus(true, "Mode Démo (Lexique local non trouvé)");
+                    }
                     return;
                 }
 
                 const filename = possibleFiles[index];
-                fetch(filename)
+                fetch('./' + filename, { cache: 'no-cache' })
                     .then(response => {
                         if (!response.ok) throw new Error('File not found');
                         return response.text();
@@ -754,6 +952,40 @@
             }
 
             tryFetch(0);
+        }
+
+        function initDragAndDrop() {
+            const dropOverlay = document.getElementById('drop-overlay');
+            let dragCounter = 0;
+
+            window.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                dragCounter++;
+                if (dropOverlay) dropOverlay.classList.remove('hidden');
+            });
+
+            window.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dragCounter--;
+                if (dragCounter <= 0 && dropOverlay) {
+                    dragCounter = 0;
+                    dropOverlay.classList.add('hidden');
+                }
+            });
+
+            window.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            window.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dragCounter = 0;
+                if (dropOverlay) dropOverlay.classList.add('hidden');
+
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleCustomFile(e.dataTransfer.files[0]);
+                }
+            });
         }
 
         function handleCustomFile(file) {
@@ -797,6 +1029,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             autoLoadDictionary();
+            initDragAndDrop();
 
             const fileInput = document.getElementById('dict-file-input');
             fileInput.addEventListener('change', (e) => {
@@ -824,18 +1057,10 @@
 
                 setTimeout(() => {
                     try {
-                        const tokens = transformSentence(text);
-                        let htmlOutput = "";
-                        tokens.forEach(tok => {
-                            if (tok.isNewline) htmlOutput += "<br>";
-                            else if (tok.isWord) {
-                                if (tok.changed) htmlOutput += `<span class="token-changed">${tok.text}</span>`;
-                                else htmlOutput += `<span>${tok.text}</span>`;
-                            } else {
-                                htmlOutput += tok.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                            }
-                        });
-                        document.getElementById('output-view').innerHTML = htmlOutput || '<span class="text-slate-400 italic">Aucun résultat.</span>';
+                        const translatedText = transformSentence(text);
+                        const outputView = document.getElementById('output-view');
+                        
+                        outputView.innerHTML = escapeHtml(translatedText).replace(/\n/g, '<br>') || '<span class="text-slate-400 italic">Aucun résultat.</span>';
                     } catch (err) {
                         console.error(err);
                         showToast("Erreur lors de la traduction.");
@@ -850,7 +1075,7 @@
 
             document.getElementById('clear-btn').addEventListener('click', () => {
                 document.getElementById('input-text').value = "";
-                document.getElementById('output-view').innerHTML = '<span class="text-slate-400 italic">Le résultat transformé apparaîtra ici...</span>';
+                document.getElementById('output-view').innerHTML = '<span class="text-slate-400 italic">La traduction apparaîtra ici...</span>';
             });
 
             document.getElementById('copy-btn').addEventListener('click', () => {
