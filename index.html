@@ -584,12 +584,12 @@
 
             // Multi-stage pipeline enforcing verb agreement, syllable count & initial sound
             const stages = [
-                { maxDist: 1, minFreq: 0.5, strictRhyme: isEndToken, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: true },
-                { maxDist: 2, minFreq: 0.5, strictRhyme: isEndToken, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: true },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: isEndToken, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: false },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: false, strictCV: true, strictInfover: true, strictSyllables: true, requireSameStart: false },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: false, strictCV: true, strictInfover: false, strictSyllables: true, requireSameStart: false },
-                { maxDist: 2, minFreq: 0.0, strictRhyme: false, strictCV: false, strictInfover: false, strictSyllables: false, requireSameStart: false }
+                { maxDist: 1, minFreq: 0.5,  strictRhyme: isEndToken, strictCV: true,  strictInfover: true, strictSyllables: true,  requireSameStart: true },
+                { maxDist: 2, minFreq: 0.5,  strictRhyme: isEndToken, strictCV: true,  strictInfover: true, strictSyllables: true,  requireSameStart: true },
+                { maxDist: 2, minFreq: 0.03, strictRhyme: isEndToken, strictCV: true,  strictInfover: true, strictSyllables: true,  requireSameStart: false },
+                { maxDist: 2, minFreq: 0.03, strictRhyme: false,      strictCV: true,  strictInfover: true, strictSyllables: true,  requireSameStart: false },
+                { maxDist: 2, minFreq: 0.03, strictRhyme: false,      strictCV: true,  strictInfover: true, strictSyllables: true,  requireSameStart: false },
+                { maxDist: 2, minFreq: 0.03, strictRhyme: false,      strictCV: false, strictInfover: true, strictSyllables: false, requireSameStart: false }
             ];
 
             for (const stage of stages) {
